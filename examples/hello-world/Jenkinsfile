@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-creds', url: 'https://github.com/NoorbabaShaik/hello-world.git', branch: 'master'
+                git credentialsId: '7eec7f61-3519-4806-b158-c5a17cdd2db8', url: 'https://github.com/NoorbabaShaik/hello-world.git', branch: 'master'
             }
         }
 
