@@ -1,0 +1,26 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        run: docker --version
+
+      - name: Build Docker image
+        run: docker build -t my-app .
+
+      - name: Run Dummy Tests
+        run: |
+          echo "Running dummy tests..."
+          echo "All tests passed ✅"
+
