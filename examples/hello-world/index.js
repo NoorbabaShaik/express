@@ -1,15 +1,15 @@
-'use strict'
+'use strict';
 
-var express = require('../../');
+const express = require('express');
+const app = express();
 
-var app = module.exports = express()
-
-app.get('/', function(req, res){
+app.get('/', function(req, res) {
   res.send('Hello World');
 });
 
 /* istanbul ignore next */
 if (!module.parent) {
-  app.listen(3000);
-  console.log('Express started on port 3000');
+  app.listen(8080, () => {
+    console.log('Express started on port 8080');
+  });
 }
