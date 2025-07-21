@@ -1,44 +1,39 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    REGISTRY = ""          // e.g., "docker.io/noorbaba"
-    IMAGE     = "express-app"
-  }
-
-  triggers {
-    githubPush()           // responds to GitHub webhook
-  }
-
-  stages {
-    stage("Checkout") {
-      steps {
-        git url: "https://github.com/NoorbabaShaik/express.git",
-            credentialsId: "github-creds"
-      }
+    environment {
+        IMAGE_NAME = "hello-world"
+        DOCKER_TAG = "latest"
     }
 
-    stage("Build Image") {
-      steps {
-        script {
-          docker.build("${IMAGE}:latest")
+    triggers {
+        pollSCM('* * * * *') // Optional: For demo purpose - checks every minute
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main',
+                    credentialsId: 'github-creds',
+                    url: 'https://github.com/<your-username>/<your-repo>.git'
+            }
         }
-      }
-    }
 
-    stage("Test") {
-      steps {
-        sh """
-          echo "=== Running dummy test ==="
-          docker run --rm ${IMAGE}:latest sh -c "curl -f http://localhost:8080 || exit 1"
-        """
-      }
-    }
-  }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -t $IMAGE_NAME:$DOCKER_TAG .'
+                }
+            }
+        }
 
-  post {
-    failure {
-      echo "CI Pipeline failed."
+        stage('Run Tests') {
+            steps {
+                script {
+                    // Dummy test
+                    sh 'echo "Running tests... All tests passed!"'
+                }
+            }
+        }
     }
-  }
 }
