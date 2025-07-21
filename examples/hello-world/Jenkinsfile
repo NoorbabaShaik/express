@@ -1,45 +1,44 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        IMAGE_NAME = 'hello-world-app'
-        TAG = "${env.BUILD_NUMBER}"
+  environment {
+    REGISTRY = ""          // e.g., "docker.io/noorbaba"
+    IMAGE     = "express-app"
+  }
+
+  triggers {
+    githubPush()           // responds to GitHub webhook
+  }
+
+  stages {
+    stage("Checkout") {
+      steps {
+        git url: "https://github.com/NoorbabaShaik/express.git",
+            credentialsId: "github-creds"
+      }
     }
 
-    triggers {
-        pollSCM('* * * * *') // or use GitHub webhook for push trigger
+    stage("Build Image") {
+      steps {
+        script {
+          docker.build("${IMAGE}:latest")
+        }
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git credentialsId: '7eec7f61-3519-4806-b158-c5a17cdd2db8', url: 'https://github.com/NoorbabaShaik/hello-world.git', branch: 'master'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    sh 'docker build -t $IMAGE_NAME:$TAG .'
-                }
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                script {
-                    sh 'node test.js'
-                }
-            }
-        }
+    stage("Test") {
+      steps {
+        sh """
+          echo "=== Running dummy test ==="
+          docker run --rm ${IMAGE}:latest sh -c "curl -f http://localhost:8080 || exit 1"
+        """
+      }
     }
+  }
 
-    post {
-        always {
-            echo 'Pipeline completed.'
-        }
-        failure {
-            echo 'Build or test failed!'
-        }
+  post {
+    failure {
+      echo "CI Pipeline failed."
     }
+  }
 }
